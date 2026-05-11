@@ -1,4 +1,5 @@
 import { AuditSummary } from "@/types/audit";
+import { LeadForm } from "./lead-form";
 
 interface Props {
   results: AuditSummary;
@@ -7,6 +8,7 @@ interface Props {
 export function AuditResults({ results }: Props) {
   return (
     <div className="mt-10 space-y-6">
+      {/* Savings Hero Section */}
       <div className="rounded-2xl border border-green-500/20 bg-green-500/10 p-8">
         <h2 className="text-3xl font-bold">
           Potential Savings
@@ -35,6 +37,7 @@ export function AuditResults({ results }: Props) {
         </div>
       </div>
 
+      {/* Recommendations */}
       <div className="space-y-4">
         {results.recommendations.map((item) => (
           <div
@@ -92,6 +95,7 @@ export function AuditResults({ results }: Props) {
         ))}
       </div>
 
+      {/* Credex CTA */}
       {results.totalSavings > 500 && (
         <div className="rounded-2xl border border-blue-500/20 bg-blue-500/10 p-6">
           <h3 className="text-2xl font-bold">
@@ -103,11 +107,33 @@ export function AuditResults({ results }: Props) {
             costs even further through discounted credits.
           </p>
 
-          <button className="mt-4 rounded-lg bg-blue-500 px-6 py-3 font-medium text-white">
+          <button className="mt-4 rounded-lg bg-blue-500 px-6 py-3 font-medium text-white transition hover:bg-blue-400">
             Book Consultation
           </button>
         </div>
       )}
+
+      {/* Honest Low Savings Message */}
+      {results.totalSavings < 100 && (
+        <div className="rounded-2xl border border-yellow-500/20 bg-yellow-500/10 p-6">
+          <h3 className="text-2xl font-bold text-yellow-300">
+            Your AI Spend Looks Healthy
+          </h3>
+
+          <p className="mt-2 text-gray-300">
+            We didn’t detect major overspending opportunities
+            right now. Still, saving your audit lets us notify
+            you when better optimizations become available.
+          </p>
+        </div>
+      )}
+
+      {/* Lead Capture */}
+      <LeadForm
+        savings={results.totalSavings}
+        tool={results.recommendations[0]?.tool || ""}
+        teamSize={5}
+      />
     </div>
   );
 }
