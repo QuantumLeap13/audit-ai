@@ -1,4 +1,5 @@
 import { AuditSummary } from "@/types/audit";
+import { AISummary } from "./ai-summary";
 import { LeadForm } from "./lead-form";
 
 interface Props {
@@ -127,6 +128,14 @@ export function AuditResults({ results }: Props) {
           </p>
         </div>
       )}
+
+      {/* AI Summary */}
+      <AISummary
+        tool={results.recommendations[0]?.tool || ""}
+        currentSpend={results.totalCurrentSpend}
+        savings={results.totalSavings}
+        useCase="coding"
+      />
 
       {/* Lead Capture */}
       <LeadForm
