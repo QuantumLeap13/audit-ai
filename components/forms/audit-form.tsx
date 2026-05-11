@@ -1,7 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+
+import { generateAudit } from "@/lib/audit-engine/engine";
+import { AuditResults } from "@/components/audit/audit-results";
+import { AuditSummary } from "@/types/audit";
 
 type FormData = {
   tool: string;
@@ -13,9 +17,13 @@ type FormData = {
 };
 
 export function AuditForm() {
+  const [results, setResults] =
+    useState<AuditSummary | null>(null);
+
   const { register, handleSubmit, watch, setValue } =
     useForm<FormData>();
 
+  // Load saved form data
   useEffect(() => {
     const saved = localStorage.getItem("audit-form");
 
@@ -28,6 +36,7 @@ export function AuditForm() {
     }
   }, [setValue]);
 
+  // Persist form data
   const values = watch();
 
   useEffect(() => {
@@ -37,9 +46,22 @@ export function AuditForm() {
     );
   }, [values]);
 
+  // Generate audit results
   const onSubmit = (data: FormData) => {
-    console.log(data);
-    alert("Audit calculation coming next step!");
+    const audit = generateAudit({
+      tools: [
+        {
+          tool: data.tool as any,
+          plan: data.plan,
+          monthlySpend: Number(data.monthlySpend),
+          seats: Number(data.seats),
+        },
+      ],
+      teamSize: Number(data.teamSize),
+      useCase: data.useCase,
+    });
+
+    setResults(audit);
   };
 
   return (
@@ -52,6 +74,7 @@ export function AuditForm() {
         onSubmit={handleSubmit(onSubmit)}
         className="space-y-6"
       >
+        {/* Tool Selection */}
         <div>
           <label className="mb-2 block text-sm">
             AI Tool
@@ -70,6 +93,7 @@ export function AuditForm() {
           </select>
         </div>
 
+        {/* Plan */}
         <div>
           <label className="mb-2 block text-sm">
             Current Plan
@@ -82,6 +106,7 @@ export function AuditForm() {
           />
         </div>
 
+        {/* Spend + Seats */}
         <div className="grid gap-6 md:grid-cols-2">
           <div>
             <label className="mb-2 block text-sm">
@@ -108,6 +133,7 @@ export function AuditForm() {
           </div>
         </div>
 
+        {/* Team Size */}
         <div>
           <label className="mb-2 block text-sm">
             Team Size
@@ -120,6 +146,7 @@ export function AuditForm() {
           />
         </div>
 
+        {/* Use Case */}
         <div>
           <label className="mb-2 block text-sm">
             Primary Use Case
@@ -138,6 +165,7 @@ export function AuditForm() {
           </select>
         </div>
 
+        {/* Submit */}
         <button
           type="submit"
           className="w-full rounded-lg bg-green-500 py-3 font-medium text-black transition hover:bg-green-400"
@@ -145,6 +173,9 @@ export function AuditForm() {
           Generate Free Audit
         </button>
       </form>
+
+      {/* Results */}
+      {results && <AuditResults results={results} />}
     </div>
   );
 }
