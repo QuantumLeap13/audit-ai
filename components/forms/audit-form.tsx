@@ -20,6 +20,9 @@ export function AuditForm() {
   const [results, setResults] =
     useState<AuditSummary | null>(null);
 
+  const [shareUrl, setShareUrl] =
+    useState("");
+
   const { register, handleSubmit, watch, setValue } =
     useForm<FormData>();
 
@@ -46,8 +49,8 @@ export function AuditForm() {
     );
   }, [values]);
 
-  // Generate audit results
-  const onSubmit = (data: FormData) => {
+  // Generate + save audit
+  const onSubmit = async (data: FormData) => {
     const audit = generateAudit({
       tools: [
         {
@@ -57,11 +60,47 @@ export function AuditForm() {
           seats: Number(data.seats),
         },
       ],
+
       teamSize: Number(data.teamSize),
+
       useCase: data.useCase,
     });
 
     setResults(audit);
+
+    try {
+      const response = await fetch("/api/audit", {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify({
+          tool: data.tool,
+          plan: data.plan,
+
+          monthlySpend: data.monthlySpend,
+          seats: data.seats,
+
+          totalSavings: audit.totalSavings,
+          annualSavings: audit.annualSavings,
+
+          summary:
+            "AI-generated audit summary placeholder",
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.auditId) {
+        setShareUrl(
+          `${window.location.origin}/audit/${result.auditId}`
+        );
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -85,11 +124,26 @@ export function AuditForm() {
             className="w-full rounded-lg border border-white/10 bg-black p-3"
           >
             <option value="">Select tool</option>
-            <option value="chatgpt">ChatGPT</option>
-            <option value="claude">Claude</option>
-            <option value="cursor">Cursor</option>
-            <option value="copilot">GitHub Copilot</option>
-            <option value="gemini">Gemini</option>
+
+            <option value="chatgpt">
+              ChatGPT
+            </option>
+
+            <option value="claude">
+              Claude
+            </option>
+
+            <option value="cursor">
+              Cursor
+            </option>
+
+            <option value="copilot">
+              GitHub Copilot
+            </option>
+
+            <option value="gemini">
+              Gemini
+            </option>
           </select>
         </div>
 
@@ -156,12 +210,29 @@ export function AuditForm() {
             {...register("useCase")}
             className="w-full rounded-lg border border-white/10 bg-black p-3"
           >
-            <option value="">Select use case</option>
-            <option value="coding">Coding</option>
-            <option value="writing">Writing</option>
-            <option value="research">Research</option>
-            <option value="data">Data Analysis</option>
-            <option value="mixed">Mixed</option>
+            <option value="">
+              Select use case
+            </option>
+
+            <option value="coding">
+              Coding
+            </option>
+
+            <option value="writing">
+              Writing
+            </option>
+
+            <option value="research">
+              Research
+            </option>
+
+            <option value="data">
+              Data Analysis
+            </option>
+
+            <option value="mixed">
+              Mixed
+            </option>
           </select>
         </div>
 
@@ -175,7 +246,26 @@ export function AuditForm() {
       </form>
 
       {/* Results */}
-      {results && <AuditResults results={results} />}
+      {results && (
+        <AuditResults results={results} />
+      )}
+
+      {/* Share URL */}
+      {shareUrl && (
+        <div className="mt-6 rounded-xl border border-blue-500/20 bg-blue-500/10 p-4">
+          <p className="font-medium text-blue-300">
+            Shareable Audit URL
+          </p>
+
+          <a
+            href={shareUrl}
+            target="_blank"
+            className="mt-2 block break-all text-sm text-white underline"
+          >
+            {shareUrl}
+          </a>
+        </div>
+      )}
     </div>
   );
 }
