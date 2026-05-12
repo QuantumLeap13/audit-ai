@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 
+import type { ToolName, AuditSummary } from "@/types/audit";
 import { generateAudit } from "@/lib/audit-engine/engine";
 import { AuditResults } from "@/components/audit/audit-results";
-import { AuditSummary } from "@/types/audit";
 
 type FormData = {
-  tool: string;
+  tool: ToolName | "";
   plan: string;
   monthlySpend: number;
   seats: number;
@@ -17,52 +17,41 @@ type FormData = {
 };
 
 export function AuditForm() {
-  const [results, setResults] =
-    useState<AuditSummary | null>(null);
+  const [results, setResults] = useState<AuditSummary | null>(null);
+  const [shareUrl, setShareUrl] = useState("");
 
-  const [shareUrl, setShareUrl] =
-    useState("");
+  const { register, handleSubmit, control, setValue } = useForm<FormData>();
 
-  const { register, handleSubmit, watch, setValue } =
-    useForm<FormData>();
+  const watchedValues = useWatch({ control });
 
-  // Load saved form data
   useEffect(() => {
     const saved = localStorage.getItem("audit-form");
+    if (!saved) return;
 
-    if (saved) {
-      const parsed = JSON.parse(saved);
+    const parsed = JSON.parse(saved) as Partial<FormData>;
 
-      Object.entries(parsed).forEach(([key, value]) => {
-        setValue(key as keyof FormData, value as never);
-      });
-    }
+    Object.entries(parsed).forEach(([key, value]) => {
+      setValue(key as keyof FormData, value as never);
+    });
   }, [setValue]);
 
-  // Persist form data
-  const values = watch();
-
   useEffect(() => {
-    localStorage.setItem(
-      "audit-form",
-      JSON.stringify(values)
-    );
-  }, [values]);
+    localStorage.setItem("audit-form", JSON.stringify(watchedValues));
+  }, [watchedValues]);
 
-  // Generate + save audit
   const onSubmit = async (data: FormData) => {
+    if (!data.tool) return;
+
     const audit = generateAudit({
       tools: [
         {
-          tool: data.tool as any,
+          tool: data.tool,
           plan: data.plan,
           monthlySpend: Number(data.monthlySpend),
           seats: Number(data.seats),
         },
       ],
-
       teamSize: Number(data.teamSize),
-
       useCase: data.useCase,
     });
 
@@ -71,32 +60,24 @@ export function AuditForm() {
     try {
       const response = await fetch("/api/audit", {
         method: "POST",
-
         headers: {
           "Content-Type": "application/json",
         },
-
         body: JSON.stringify({
           tool: data.tool,
           plan: data.plan,
-
-          monthlySpend: data.monthlySpend,
-          seats: data.seats,
-
+          monthlySpend: Number(data.monthlySpend),
+          seats: Number(data.seats),
           totalSavings: audit.totalSavings,
           annualSavings: audit.annualSavings,
-
-          summary:
-            "AI-generated audit summary placeholder",
+          summary: "AI-generated audit summary placeholder",
         }),
       });
 
       const result = await response.json();
 
       if (result.auditId) {
-        setShareUrl(
-          `${window.location.origin}/audit/${result.auditId}`
-        );
+        setShareUrl(`${window.location.origin}/audit/${result.auditId}`);
       }
     } catch (error) {
       console.error(error);
@@ -105,54 +86,26 @@ export function AuditForm() {
 
   return (
     <div className="mx-auto max-w-3xl rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur">
-      <h2 className="mb-6 text-3xl font-semibold">
-        Start Your Free Audit
-      </h2>
+      <h2 className="mb-6 text-3xl font-semibold">Start Your Free Audit</h2>
 
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="space-y-6"
-      >
-        {/* Tool Selection */}
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div>
-          <label className="mb-2 block text-sm">
-            AI Tool
-          </label>
-
+          <label className="mb-2 block text-sm">AI Tool</label>
           <select
             {...register("tool")}
             className="w-full rounded-lg border border-white/10 bg-black p-3"
           >
             <option value="">Select tool</option>
-
-            <option value="chatgpt">
-              ChatGPT
-            </option>
-
-            <option value="claude">
-              Claude
-            </option>
-
-            <option value="cursor">
-              Cursor
-            </option>
-
-            <option value="copilot">
-              GitHub Copilot
-            </option>
-
-            <option value="gemini">
-              Gemini
-            </option>
+            <option value="chatgpt">ChatGPT</option>
+            <option value="claude">Claude</option>
+            <option value="cursor">Cursor</option>
+            <option value="copilot">GitHub Copilot</option>
+            <option value="gemini">Gemini</option>
           </select>
         </div>
 
-        {/* Plan */}
         <div>
-          <label className="mb-2 block text-sm">
-            Current Plan
-          </label>
-
+          <label className="mb-2 block text-sm">Current Plan</label>
           <input
             {...register("plan")}
             placeholder="Ex: Team"
@@ -160,13 +113,9 @@ export function AuditForm() {
           />
         </div>
 
-        {/* Spend + Seats */}
         <div className="grid gap-6 md:grid-cols-2">
           <div>
-            <label className="mb-2 block text-sm">
-              Monthly Spend ($)
-            </label>
-
+            <label className="mb-2 block text-sm">Monthly Spend ($)</label>
             <input
               type="number"
               {...register("monthlySpend")}
@@ -175,10 +124,7 @@ export function AuditForm() {
           </div>
 
           <div>
-            <label className="mb-2 block text-sm">
-              Seats
-            </label>
-
+            <label className="mb-2 block text-sm">Seats</label>
             <input
               type="number"
               {...register("seats")}
@@ -187,12 +133,8 @@ export function AuditForm() {
           </div>
         </div>
 
-        {/* Team Size */}
         <div>
-          <label className="mb-2 block text-sm">
-            Team Size
-          </label>
-
+          <label className="mb-2 block text-sm">Team Size</label>
           <input
             type="number"
             {...register("teamSize")}
@@ -200,43 +142,21 @@ export function AuditForm() {
           />
         </div>
 
-        {/* Use Case */}
         <div>
-          <label className="mb-2 block text-sm">
-            Primary Use Case
-          </label>
-
+          <label className="mb-2 block text-sm">Primary Use Case</label>
           <select
             {...register("useCase")}
             className="w-full rounded-lg border border-white/10 bg-black p-3"
           >
-            <option value="">
-              Select use case
-            </option>
-
-            <option value="coding">
-              Coding
-            </option>
-
-            <option value="writing">
-              Writing
-            </option>
-
-            <option value="research">
-              Research
-            </option>
-
-            <option value="data">
-              Data Analysis
-            </option>
-
-            <option value="mixed">
-              Mixed
-            </option>
+            <option value="">Select use case</option>
+            <option value="coding">Coding</option>
+            <option value="writing">Writing</option>
+            <option value="research">Research</option>
+            <option value="data">Data Analysis</option>
+            <option value="mixed">Mixed</option>
           </select>
         </div>
 
-        {/* Submit */}
         <button
           type="submit"
           className="w-full rounded-lg bg-green-500 py-3 font-medium text-black transition hover:bg-green-400"
@@ -245,21 +165,16 @@ export function AuditForm() {
         </button>
       </form>
 
-      {/* Results */}
-      {results && (
-        <AuditResults results={results} />
-      )}
+      {results && <AuditResults results={results} />}
 
-      {/* Share URL */}
       {shareUrl && (
         <div className="mt-6 rounded-xl border border-blue-500/20 bg-blue-500/10 p-4">
-          <p className="font-medium text-blue-300">
-            Shareable Audit URL
-          </p>
+          <p className="font-medium text-blue-300">Shareable Audit URL</p>
 
           <a
             href={shareUrl}
             target="_blank"
+            rel="noreferrer"
             className="mt-2 block break-all text-sm text-white underline"
           >
             {shareUrl}
