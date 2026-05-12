@@ -28,7 +28,35 @@ The platform generates instant cost-saving audits, personalized AI summaries, an
 
 ## Screenshots
 
-(Add screenshots here)
+## Screenshots
+
+### Landing Page
+
+![Landing Page](./public/screenshots/a3.png)
+
+---
+
+### Audit Form
+
+![Audit Form](./public/screenshots/a1.png)
+
+---
+
+### Audit Results
+
+![Audit Results](./public/screenshots/a2.png)
+
+---
+
+### Lighthouse Performance
+
+![Lighthouse Performance](./public/screenshots/a4.png)
+
+---
+
+## Demo Video
+
+[Watch Demo Video](./public/screenshots/a5.mp4)
 
 ## Quick Start
 
@@ -47,10 +75,9 @@ http://localhost:3000
 Create a `.env.local` file:
 
 ```env
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-OPENAI_API_KEY=
-```
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url_here
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
+OPENAI_API_KEY=your_openai_api_key_here
 
 ## Decisions
 
@@ -83,7 +110,7 @@ Public audit URLs create a built-in viral growth loop and improve organic distri
 
 Live URL:
 
-(Add your Vercel URL here)
+https://audit-ai-alpha.vercel.app
 
 ## CI/CD
 
