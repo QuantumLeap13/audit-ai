@@ -16,11 +16,15 @@ type FormData = {
   useCase: string;
 };
 
+const inputClass =
+  "w-full rounded-lg border border-white/20 bg-black p-3 text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500";
+
 export function AuditForm() {
   const [results, setResults] = useState<AuditSummary | null>(null);
   const [shareUrl, setShareUrl] = useState("");
 
-  const { register, handleSubmit, control, setValue } = useForm<FormData>();
+  const { register, handleSubmit, control, setValue } =
+    useForm<FormData>();
 
   const watchedValues = useWatch({ control });
 
@@ -36,7 +40,10 @@ export function AuditForm() {
   }, [setValue]);
 
   useEffect(() => {
-    localStorage.setItem("audit-form", JSON.stringify(watchedValues));
+    localStorage.setItem(
+      "audit-form",
+      JSON.stringify(watchedValues)
+    );
   }, [watchedValues]);
 
   const onSubmit = async (data: FormData) => {
@@ -77,7 +84,9 @@ export function AuditForm() {
       const result = await response.json();
 
       if (result.auditId) {
-        setShareUrl(`${window.location.origin}/audit/${result.auditId}`);
+        setShareUrl(
+          `${window.location.origin}/audit/${result.auditId}`
+        );
       }
     } catch (error) {
       console.error(error);
@@ -85,15 +94,27 @@ export function AuditForm() {
   };
 
   return (
-    <div className="mx-auto max-w-3xl rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur">
-      <h2 className="mb-6 text-3xl font-semibold">Start Your Free Audit</h2>
+    <section
+      aria-labelledby="audit-form-title"
+      className="mx-auto max-w-3xl rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur"
+    >
+      <h2
+        id="audit-form-title"
+        className="mb-6 text-3xl font-semibold"
+      >
+        Start Your Free Audit
+      </h2>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div>
-          <label className="mb-2 block text-sm">AI Tool</label>
+          <label htmlFor="tool" className="mb-2 block text-sm">
+            AI Tool
+          </label>
           <select
+            id="tool"
             {...register("tool")}
-            className="w-full rounded-lg border border-white/10 bg-black p-3"
+            className={inputClass}
+            required
           >
             <option value="">Select tool</option>
             <option value="chatgpt">ChatGPT</option>
@@ -105,48 +126,74 @@ export function AuditForm() {
         </div>
 
         <div>
-          <label className="mb-2 block text-sm">Current Plan</label>
+          <label htmlFor="plan" className="mb-2 block text-sm">
+            Current Plan
+          </label>
           <input
+            id="plan"
             {...register("plan")}
             placeholder="Ex: Team"
-            className="w-full rounded-lg border border-white/10 bg-black p-3"
+            className={inputClass}
+            required
           />
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
           <div>
-            <label className="mb-2 block text-sm">Monthly Spend ($)</label>
+            <label
+              htmlFor="monthlySpend"
+              className="mb-2 block text-sm"
+            >
+              Monthly Spend ($)
+            </label>
             <input
+              id="monthlySpend"
               type="number"
+              min="0"
               {...register("monthlySpend")}
-              className="w-full rounded-lg border border-white/10 bg-black p-3"
+              className={inputClass}
+              required
             />
           </div>
 
           <div>
-            <label className="mb-2 block text-sm">Seats</label>
+            <label htmlFor="seats" className="mb-2 block text-sm">
+              Seats
+            </label>
             <input
+              id="seats"
               type="number"
+              min="1"
               {...register("seats")}
-              className="w-full rounded-lg border border-white/10 bg-black p-3"
+              className={inputClass}
+              required
             />
           </div>
         </div>
 
         <div>
-          <label className="mb-2 block text-sm">Team Size</label>
+          <label htmlFor="teamSize" className="mb-2 block text-sm">
+            Team Size
+          </label>
           <input
+            id="teamSize"
             type="number"
+            min="1"
             {...register("teamSize")}
-            className="w-full rounded-lg border border-white/10 bg-black p-3"
+            className={inputClass}
+            required
           />
         </div>
 
         <div>
-          <label className="mb-2 block text-sm">Primary Use Case</label>
+          <label htmlFor="useCase" className="mb-2 block text-sm">
+            Primary Use Case
+          </label>
           <select
+            id="useCase"
             {...register("useCase")}
-            className="w-full rounded-lg border border-white/10 bg-black p-3"
+            className={inputClass}
+            required
           >
             <option value="">Select use case</option>
             <option value="coding">Coding</option>
@@ -159,7 +206,8 @@ export function AuditForm() {
 
         <button
           type="submit"
-          className="w-full rounded-lg bg-green-500 py-3 font-medium text-black transition hover:bg-green-400"
+          aria-label="Generate AI spend audit"
+          className="w-full rounded-lg bg-green-500 py-3 font-medium text-black transition hover:bg-green-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-black"
         >
           Generate Free Audit
         </button>
@@ -169,18 +217,21 @@ export function AuditForm() {
 
       {shareUrl && (
         <div className="mt-6 rounded-xl border border-blue-500/20 bg-blue-500/10 p-4">
-          <p className="font-medium text-blue-300">Shareable Audit URL</p>
+          <p className="font-medium text-blue-200">
+            Shareable Audit URL
+          </p>
 
           <a
             href={shareUrl}
             target="_blank"
             rel="noreferrer"
-            className="mt-2 block break-all text-sm text-white underline"
+            aria-label="Open shareable audit report"
+            className="mt-2 block break-all text-sm text-white underline focus:outline-none focus:ring-2 focus:ring-blue-400"
           >
             {shareUrl}
           </a>
         </div>
       )}
-    </div>
+    </section>
   );
 }
