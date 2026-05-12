@@ -17,7 +17,7 @@ type FormData = {
 };
 
 const inputClass =
-  "w-full rounded-lg border border-white/20 bg-black p-3 text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500";
+  "w-full rounded-lg border border-white/30 bg-black p-3 text-white placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400";
 
 export function AuditForm() {
   const [results, setResults] = useState<AuditSummary | null>(null);
@@ -67,9 +67,7 @@ export function AuditForm() {
     try {
       const response = await fetch("/api/audit", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           tool: data.tool,
           plan: data.plan,
@@ -96,26 +94,21 @@ export function AuditForm() {
   return (
     <section
       aria-labelledby="audit-form-title"
-      className="mx-auto max-w-3xl rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur"
+      className="mx-auto max-w-3xl rounded-2xl border border-white/20 bg-white/10 p-8 backdrop-blur"
     >
       <h2
         id="audit-form-title"
-        className="mb-6 text-3xl font-semibold"
+        className="mb-6 text-3xl font-semibold text-white"
       >
         Start Your Free Audit
       </h2>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div>
-          <label htmlFor="tool" className="mb-2 block text-sm">
+          <label htmlFor="tool" className="mb-2 block text-sm text-white">
             AI Tool
           </label>
-          <select
-            id="tool"
-            {...register("tool")}
-            className={inputClass}
-            required
-          >
+          <select id="tool" {...register("tool")} className={inputClass} required>
             <option value="">Select tool</option>
             <option value="chatgpt">ChatGPT</option>
             <option value="claude">Claude</option>
@@ -126,7 +119,7 @@ export function AuditForm() {
         </div>
 
         <div>
-          <label htmlFor="plan" className="mb-2 block text-sm">
+          <label htmlFor="plan" className="mb-2 block text-sm text-white">
             Current Plan
           </label>
           <input
@@ -140,10 +133,7 @@ export function AuditForm() {
 
         <div className="grid gap-6 md:grid-cols-2">
           <div>
-            <label
-              htmlFor="monthlySpend"
-              className="mb-2 block text-sm"
-            >
+            <label htmlFor="monthlySpend" className="mb-2 block text-sm text-white">
               Monthly Spend ($)
             </label>
             <input
@@ -157,7 +147,7 @@ export function AuditForm() {
           </div>
 
           <div>
-            <label htmlFor="seats" className="mb-2 block text-sm">
+            <label htmlFor="seats" className="mb-2 block text-sm text-white">
               Seats
             </label>
             <input
@@ -172,7 +162,7 @@ export function AuditForm() {
         </div>
 
         <div>
-          <label htmlFor="teamSize" className="mb-2 block text-sm">
+          <label htmlFor="teamSize" className="mb-2 block text-sm text-white">
             Team Size
           </label>
           <input
@@ -186,15 +176,10 @@ export function AuditForm() {
         </div>
 
         <div>
-          <label htmlFor="useCase" className="mb-2 block text-sm">
+          <label htmlFor="useCase" className="mb-2 block text-sm text-white">
             Primary Use Case
           </label>
-          <select
-            id="useCase"
-            {...register("useCase")}
-            className={inputClass}
-            required
-          >
+          <select id="useCase" {...register("useCase")} className={inputClass} required>
             <option value="">Select use case</option>
             <option value="coding">Coding</option>
             <option value="writing">Writing</option>
@@ -207,7 +192,7 @@ export function AuditForm() {
         <button
           type="submit"
           aria-label="Generate AI spend audit"
-          className="w-full rounded-lg bg-green-500 py-3 font-medium text-black transition hover:bg-green-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-black"
+          className="w-full rounded-lg bg-green-400 py-3 font-medium text-black transition hover:bg-green-300 focus:outline-none focus:ring-2 focus:ring-green-300 focus:ring-offset-2 focus:ring-offset-black"
         >
           Generate Free Audit
         </button>
@@ -216,8 +201,8 @@ export function AuditForm() {
       {results && <AuditResults results={results} />}
 
       {shareUrl && (
-        <div className="mt-6 rounded-xl border border-blue-500/20 bg-blue-500/10 p-4">
-          <p className="font-medium text-blue-200">
+        <div className="mt-6 rounded-xl border border-blue-400/30 bg-blue-500/20 p-4">
+          <p className="font-medium text-blue-100">
             Shareable Audit URL
           </p>
 
@@ -226,7 +211,7 @@ export function AuditForm() {
             target="_blank"
             rel="noreferrer"
             aria-label="Open shareable audit report"
-            className="mt-2 block break-all text-sm text-white underline focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="mt-2 block break-all text-sm text-white underline focus:outline-none focus:ring-2 focus:ring-blue-300"
           >
             {shareUrl}
           </a>
